@@ -6,6 +6,7 @@ import { Image } from "expo-image"
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
 import { Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view"
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp()
@@ -35,9 +36,11 @@ export default function SignUpScreen() {
       // and capture OTP code
       setPendingVerification(true)
     } catch (err) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
-      console.error(JSON.stringify(err, null, 2))
+      if (err.errors?.[0]?.code === "form_identifier_exists") {
+        setError("That email address is taken. Please try another.");
+      } else {
+        setError("An error occurred. Please try again.");
+      }
     }
   }
 
@@ -62,8 +65,6 @@ export default function SignUpScreen() {
         console.error(JSON.stringify(signUpAttempt, null, 2))
       }
     } catch (err) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
       console.error(JSON.stringify(err, null, 2))
     }
   }
@@ -98,15 +99,30 @@ export default function SignUpScreen() {
   }
 
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <View style={[styles.container, {flex: 1}]}>
-        <Image 
+    <KeyboardAwareScrollView
+      style={{ flex: 1 }}
+      contentContainerStyle={{ flexGrow: 1 }}
+      enableOnAndroid={true}
+      enableAutomaticScroll={true}
+    >
+      <View style={styles.container}>
+        <Image
           source={require("../../assets/images/revenue-i2.png")}
           style={styles.illustration}
           contentFit="contain"
         />
 
         <Text style={styles.title}>Create Account</Text>
+
+        {error ? (
+          <View style={styles.errorBox}>
+            <Ionicons name="alert-circle" size={20} color={COLORS.expense} />
+            <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity onPress={() => setError('')}>
+              <Ionicons name='close' size={20} color={COLORS.textLight} />
+            </TouchableOpacity>
+          </View>
+        ) : null}
 
         <TextInput
           style={[styles.input, error && styles.errorInput]}
@@ -137,7 +153,7 @@ export default function SignUpScreen() {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </KeyboardAwareScrollView>
   )
 
 }
