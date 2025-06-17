@@ -255,8 +255,7 @@ export const styles = StyleSheet.create({
     paddingBottom: 5,
   },
   transactionsList: {
-    flex: 1,
-    marginHorizontal: 20,
+    marginHorizontal: 0,
   },
   transactionsListContent: {
     paddingBottom: 20,
